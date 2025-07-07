@@ -1,0 +1,29 @@
+#include <iostream>
+#include <unistd.h>
+
+void pipeline(const char *process1, const char *process2)
+{
+    int fd[2];
+    pipe(fd);
+    int id = fork();
+    if (id != 0) // parent process
+    {
+        close(fd[0]);               // close the read end of the pipe
+        dup2(fd[1], STDOUT_FILENO); // redirect standart output to the write end of the pipe
+        close(fd[1]);               // close the write end of the pipe
+
+        // execute process1
+        execlp("/usr/bin/cat", "cat", "main.cpp", nullptr);
+        std::cerr << "Failed to execute " << process1 << std::endl;
+    }
+    else
+    {
+        close(fd[1]);              // close the write end of the pipe
+        dup2(fd[0], STDIN_FILENO); // redirect standard input to the read end of the pipe
+        close(fd[1]);              // close the read end of the pipe
+
+        // execute process2
+        execlp("/usr/bin/grep", "grep", "hello", nullptr);
+        std::cerr << "Failed to execute " << process2 << std::endl;
+    }
+}
