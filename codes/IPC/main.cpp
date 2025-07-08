@@ -27,3 +27,9 @@ void pipeline(const char *process1, const char *process2)
         std::cerr << "Failed to execute " << process2 << std::endl;
     }
 }
+
+int main()
+{
+    pipeline("cat main.cpp", "grep hello");
+    return 0;
+}
